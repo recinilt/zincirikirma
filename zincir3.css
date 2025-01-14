@@ -1,0 +1,28 @@
+/* Temel stilleri buraya ekleyebilirsiniz */
+table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    border: 1px solid black;
+    text-align: center;
+    padding: 8px;
+  }
+  
+  .completed {
+    background-color: green;
+  }
+  
+  .missed {
+    background-color: red;
+  }
+
+  .delete-habit {
+    background-color: red; /* Kırmızı arka plan */
+    color: white; /* Beyaz yazı rengi */
+    border: none; /* Kenarlık yok */
+    padding: 5px 10px; /* İç boşluk */
+    cursor: pointer; /* İmleç işaretçisi */
+    float: right; /* Butonu sağa yasla */
+  }

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zinciri Kırma</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            padding: 20px;
+        }
+        .habit-list {
+            margin-top: 20px;
+        }
+        .habit-item {
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .week {
+            display: flex;
+            justify-content: space-between;
+        }
+        .day {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .day.completed {
+            background-color: green;
+            color: white;
+        }
+        .day.missed {
+            background-color: red;
+            color: white;
+        }
+        .day.disabled {
+            pointer-events: none;
+            background-color: lightgray;
+        }
+        .form {
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Zinciri Kırma</h1>
+        <button id="newHabitButton">Yeni Alışkanlık</button>
+
+        <div id="habitForm" class="form hidden">
+            <input type="text" id="habitName" placeholder="Alışkanlık İsmi">
+            <input type="text" id="firstGoal" placeholder="İlk 28 günlük hedef">
+            <button id="saveHabit">Kaydet</button>
+        </div>
+
+        <div id="habits" class="habit-list"></div>
+
+        <div id="calendar" class="calendar hidden"></div>
+    </div>
+
+    <script>
+        const newHabitButton = document.getElementById('newHabitButton');
+        const habitForm = document.getElementById('habitForm');
+        const saveHabitButton = document.getElementById('saveHabit');
+        const habitNameInput = document.getElementById('habitName');
+        const firstGoalInput = document.getElementById('firstGoal');
+        const habitsDiv = document.getElementById('habits');
+        const calendarDiv = document.getElementById('calendar');
+        
+        const habits = JSON.parse(localStorage.getItem('habits')) || [];
+
+        const renderHabits = () => {
+            habitsDiv.innerHTML = '';
+            habits.forEach((habit, index) => {
+                const habitItem = document.createElement('div');
+                habitItem.className = 'habit-item';
+                habitItem.textContent = habit.name;
+                habitItem.onclick = () => renderCalendar(index);
+                habitsDiv.appendChild(habitItem);
+            });
+        };
+
+        const renderCalendar = (habitIndex) => {
+            calendarDiv.innerHTML = '';
+            calendarDiv.classList.remove('hidden');
+
+            const habit = habits[habitIndex];
+            const today = new Date().toISOString().split('T')[0];
+
+            for (let i = 0; i < 13; i++) {
+                const weekDiv = document.createElement('div');
+                weekDiv.className = 'week';
+
+                for (let j = 0; j < 28; j++) {
+                    const dayIndex = i * 28 + j;
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'day';
+
+                    if (dayIndex >= habit.days.length) {
+                        dayDiv.classList.add('disabled');
+                    } else if (habit.days[dayIndex].date === today) {
+                        dayDiv.onclick = () => toggleDay(habitIndex, dayIndex);
+                        dayDiv.textContent = j + 1;
+                        dayDiv.classList.add(habit.days[dayIndex].completed ? 'completed' : 'missed');
+                    }
+
+                    weekDiv.appendChild(dayDiv);
+                }
+
+                calendarDiv.appendChild(weekDiv);
+            }
+        };
+
+        const toggleDay = (habitIndex, dayIndex) => {
+            const habit = habits[habitIndex];
+            habit.days[dayIndex].completed = !habit.days[dayIndex].completed;
+            localStorage.setItem('habits', JSON.stringify(habits));
+            renderCalendar(habitIndex);
+        };
+
+        newHabitButton.onclick = () => {
+            habitForm.classList.toggle('hidden');
+        };
+
+        saveHabitButton.onclick = () => {
+            const name = habitNameInput.value;
+            const firstGoal = firstGoalInput.value;
+
+            if (!name || !firstGoal) return;
+
+            const days = Array.from({ length: 364 }, (_, index) => ({
+                date: new Date(2025, 0, 1 + index).toISOString().split('T')[0],
+                completed: false
+            }));
+
+            habits.push({ name, days, goals: [firstGoal] });
+            localStorage.setItem('habits', JSON.stringify(habits));
+
+            habitNameInput.value = '';
+            firstGoalInput.value = '';
+            habitForm.classList.add('hidden');
+            renderHabits();
+        };
+
+        renderHabits();
+    </script>
+</body>
+</html>
