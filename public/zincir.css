@@ -17,5 +17,19 @@ table {
   .missed {
     background-color: red;
   }
+  .container {
+    width: 90%; /* Sabit genişlik yerine yüzdelik genişlik */
+    max-width: 1200px; /* Maksimum genişlik belirleyin */
+    margin: 0 auto; /* Ortala */
+  }
+
+  @media (max-width: 768px) {
+    .menu {
+      display: none;
+    }
+    .hamburger-menu {
+      display: block;
+    }
+  }
 
   
